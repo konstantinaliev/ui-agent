@@ -1,0 +1,42 @@
+// This is a Prisma schema file.
+
+model User {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(255)
+  email          String           @unique
+  referrals      Referral[]       @relation("UserReferrals")
+  clicks         Click[]          @relation("UserClicks")
+  payouts        Payout[]         @relation("UserPayouts")
+}
+
+model ReferralLink {
+  id              Int             @id @default(autoincrement())
+  url             String          @unique
+  userId          Int             @relation("UserReferrals")
+  user            User            @relation(fields: [userId], references: [id])
+  clicks          Click[]         @relation("ReferralLinkClicks")
+}
+
+model Click {
+  id               Int             @id @default(autoincrement())
+  referralLinkId   Int             @relation("ReferralLinkClicks")
+  referralLink     ReferralLink     @relation(fields: [referralLinkId], references: [id])
+  userId           Int             @relation("UserClicks")
+  user             User             @relation(fields: [userId], references: [id])
+  timestamp        DateTime        @default(now())
+}
+
+model Referral {
+  id              Int             @id @default(autoincrement())
+  userId         Int             @relation("UserReferrals")
+  user           User             @relation(fields: [userId], references: [id])
+  createdAt      DateTime        @default(now())
+}
+
+model Payout {
+  id              Int             @id @default(autoincrement())
+  userId         Int             @relation("UserPayouts")
+  user           User             @relation(fields: [userId], references: [id])
+  amount         Float
+  paidAt         DateTime        @default(now())
+}
